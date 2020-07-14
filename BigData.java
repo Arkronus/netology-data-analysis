@@ -3,6 +3,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Stream;
 
 public class BigData {
     public static void main(String[] args) {
@@ -59,43 +60,33 @@ public class BigData {
     }
 
     private static Long countWorking(List<People> peoples, StreamLogic logic) {
-        if (logic.equals(StreamLogic.SIMPLE)) {
-            return peoples.stream()
-                    .filter(people -> people.canWork())
-                    .count();
-        } else {
-            return peoples.parallelStream()
-                    .filter(people -> people.canWork())
-                    .count();
-        }
+        Stream<People> peopleStream;
+        if (logic.equals(StreamLogic.SIMPLE)) peopleStream = peoples.stream();
+        else peopleStream = peoples.parallelStream();
+        return peopleStream
+                .filter(people -> people.canWork())
+                .count();
     }
 
     private static Long countMilitary(List<People> peoples, StreamLogic logic) {
-        if (logic.equals(StreamLogic.SIMPLE)) {
-            return peoples.stream()
-                    .filter(people -> people.getSex().equals(Sex.MAN))
-                    .filter(people -> people.getAge() >= 18 & people.getAge() <= 27)
-                    .count();
-        } else {
-            return peoples.parallelStream()
-                    .filter(people -> people.getSex().equals(Sex.MAN))
-                    .filter(people -> people.getAge() >= 18 & people.getAge() <= 27)
-                    .count();
-        }
+
+        Stream<People> peopleStream;
+        if (logic.equals(StreamLogic.SIMPLE)) peopleStream = peoples.stream();
+        else peopleStream = peoples.parallelStream();
+        return peopleStream
+                .filter(people -> people.getSex().equals(Sex.MAN))
+                .filter(people -> people.getAge() >= 18 & people.getAge() <= 27)
+                .count();
     }
 
     private static Double calcAverageMenAge(Collection<People> peoples, StreamLogic logic) {
-        if (logic.equals(StreamLogic.SIMPLE)) {
-            return peoples.stream()
-                    .filter(people -> people.getSex().equals(Sex.MAN))
-                    .mapToInt(p -> p.getAge())
-                    .average().getAsDouble();
-        } else {
-            return peoples.parallelStream()
-                    .filter(people -> people.getSex().equals(Sex.MAN))
-                    .mapToInt(p -> p.getAge())
-                    .average().getAsDouble();
+        Stream<People> peopleStream;
+        if (logic.equals(StreamLogic.SIMPLE)) peopleStream = peoples.stream();
+        else peopleStream = peoples.parallelStream();
+        return peopleStream
+                .filter(people -> people.getSex().equals(Sex.MAN))
+                .mapToInt(p -> p.getAge())
+                .average().getAsDouble();
 
-        }
     }
 }
