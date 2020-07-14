@@ -2,7 +2,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Main {
 
@@ -29,7 +28,8 @@ public class Main {
         System.out.println("Средний возраст: " + avgMenAge);
 
         Long working = peoples.stream()
-                .filter(people -> people.getAge() >= 18 & people.getAge() <= 65)
+                .filter(people -> people.getAge() >= 18 & ((people.getAge() <= 65 & people.getSex().equals(Sex.MAN)) ||
+                        (people.getAge() <= 60 & people.getSex().equals(Sex.WOMAN))))
                 .count();
         System.out.println("Работоспособных людей: " + working);
     }
