@@ -21,6 +21,12 @@ public class People {
         return sex;
     }
 
+    public boolean canWork(){
+        return age >= 18 & ((age <= 65 & sex.equals(Sex.MAN)) ||
+                (age <= 60 & sex.equals(Sex.WOMAN)));
+    }
+
+
     @Override
     public String toString() {
         return "{" +

@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -21,23 +22,15 @@ public class BigData {
         long startTime = System.nanoTime();
 
 //      Выбрать мужчин-военнообязанных и вывести их количество в консоль.
-        Long militaryCount = peoples.stream()
-                .filter(people -> people.getSex().equals(Sex.MAN))
-                .filter(people -> people.getAge()>=18 & people.getAge()<=27)
-                .count();
+        Long militaryCount = countMilitary(peoples, StreamLogic.SIMPLE);
         System.out.println("Кол-во военнообязанных: " + militaryCount);
+
 //      Найти средний возраст среди мужчин и вывести его в консоль.
-        Double avgMenAge = peoples.stream()
-                .filter(people -> people.getSex().equals(Sex.MAN))
-                .mapToInt(p -> p.getAge())
-                .average().getAsDouble();
+        Double avgMenAge = calcAverageMenAge(peoples, StreamLogic.SIMPLE);
         System.out.println("Средний возраст: " + avgMenAge);
 
 //      Найти кол-во потенциально работоспособных людей в выборке (т.е. от 18 лет и учитывая, что женщины выходят на пенсию в 60 лет, а мужчины - в 65).
-        Long working = peoples.stream()
-                .filter(people -> people.getAge() >= 18 & ((people.getAge() <= 65 & people.getSex().equals(Sex.MAN)) ||
-                        (people.getAge() <= 60 & people.getSex().equals(Sex.WOMAN))))
-                .count();
+        Long working = countWorking(peoples, StreamLogic.SIMPLE);
         System.out.println("Работоспособных: " + working);
 
         long stopTime = System.nanoTime();
@@ -49,27 +42,60 @@ public class BigData {
         startTime = System.nanoTime();
 
 //      Выбрать мужчин-военнообязанных и вывести их количество в консоль.
-        militaryCount = peoples.parallelStream()
-                .filter(people -> people.getSex().equals(Sex.MAN))
-                .filter(people -> people.getAge()>=18 & people.getAge()<=27)
-                .count();
+        militaryCount = countMilitary(peoples, StreamLogic.PARALLEL);
         System.out.println("Кол-во военнообязанных: " + militaryCount);
+
 //      Найти средний возраст среди мужчин и вывести его в консоль.
-        avgMenAge = peoples.parallelStream()
-                .filter(people -> people.getSex().equals(Sex.MAN))
-                .mapToInt(p -> p.getAge())
-                .average().getAsDouble();
+        avgMenAge = calcAverageMenAge(peoples, StreamLogic.PARALLEL);
         System.out.println("Средний возраст: " + avgMenAge);
 
 //      Найти кол-во потенциально работоспособных людей в выборке (т.е. от 18 лет и учитывая, что женщины выходят на пенсию в 60 лет, а мужчины - в 65).
-        working = peoples.parallelStream()
-                .filter(people -> people.getAge() >= 18 & ((people.getAge() <= 65 & people.getSex().equals(Sex.MAN)) ||
-                        (people.getAge() <= 60 & people.getSex().equals(Sex.WOMAN))))
-                .count();
+        working = countWorking(peoples, StreamLogic.PARALLEL);
         System.out.println("Работоспособных: " + working);
 
         stopTime = System.nanoTime();
         processTime = (double) (stopTime - startTime) / 1_000_000_000.0;
         System.out.println("Process time: " + processTime + " s");
+    }
+
+    private static Long countWorking(List<People> peoples, StreamLogic logic) {
+        if (logic.equals(StreamLogic.SIMPLE)) {
+            return peoples.stream()
+                    .filter(people -> people.canWork())
+                    .count();
+        } else {
+            return peoples.parallelStream()
+                    .filter(people -> people.canWork())
+                    .count();
+        }
+    }
+
+    private static Long countMilitary(List<People> peoples, StreamLogic logic) {
+        if (logic.equals(StreamLogic.SIMPLE)) {
+            return peoples.stream()
+                    .filter(people -> people.getSex().equals(Sex.MAN))
+                    .filter(people -> people.getAge() >= 18 & people.getAge() <= 27)
+                    .count();
+        } else {
+            return peoples.parallelStream()
+                    .filter(people -> people.getSex().equals(Sex.MAN))
+                    .filter(people -> people.getAge() >= 18 & people.getAge() <= 27)
+                    .count();
+        }
+    }
+
+    private static Double calcAverageMenAge(Collection<People> peoples, StreamLogic logic) {
+        if (logic.equals(StreamLogic.SIMPLE)) {
+            return peoples.stream()
+                    .filter(people -> people.getSex().equals(Sex.MAN))
+                    .mapToInt(p -> p.getAge())
+                    .average().getAsDouble();
+        } else {
+            return peoples.parallelStream()
+                    .filter(people -> people.getSex().equals(Sex.MAN))
+                    .mapToInt(p -> p.getAge())
+                    .average().getAsDouble();
+
+        }
     }
 }

@@ -14,23 +14,33 @@ public class Main {
         );
 
 
-        List<People> military = peoples.stream()
-                .filter(people -> people.getSex().equals(Sex.MAN))
-                .filter(people -> people.getAge()>=18 & people.getAge()<=27)
-                .collect(Collectors.toList());
-
+        List<People> military = getMilitary(peoples);
         for (People p : military) System.out.println(p.toString());
 
-        Double avgMenAge = peoples.stream()
-                .filter(people -> people.getSex().equals(Sex.MAN))
-                .mapToInt(p -> p.getAge())
-                .average().getAsDouble();
+        Double avgMenAge = calcAverageMenAge(peoples);
         System.out.println("Средний возраст: " + avgMenAge);
 
-        Long working = peoples.stream()
-                .filter(people -> people.getAge() >= 18 & ((people.getAge() <= 65 & people.getSex().equals(Sex.MAN)) ||
-                        (people.getAge() <= 60 & people.getSex().equals(Sex.WOMAN))))
-                .count();
+        Long working = countWorking(peoples);
         System.out.println("Работоспособных людей: " + working);
+    }
+
+    private static Long countWorking(Collection<People> peoples) {
+        return peoples.stream()
+                    .filter(people -> people.canWork())
+                    .count();
+    }
+
+    private static Double calcAverageMenAge(Collection<People> peoples) {
+        return peoples.stream()
+                    .filter(people -> people.getSex().equals(Sex.MAN))
+                    .mapToInt(p -> p.getAge())
+                    .average().getAsDouble();
+    }
+
+    private static List<People> getMilitary(Collection<People> peoples) {
+        return peoples.stream()
+                    .filter(people -> people.getSex().equals(Sex.MAN))
+                    .filter(people -> people.getAge()>=18 & people.getAge()<=27)
+                    .collect(Collectors.toList());
     }
 }
