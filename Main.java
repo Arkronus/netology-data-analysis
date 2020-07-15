@@ -26,14 +26,14 @@ public class Main {
 
     private static Long countWorking(Collection<People> peoples) {
         return peoples.stream()
-                    .filter(people -> people.canWork())
+                    .filter(People::canWork)
                     .count();
     }
 
     private static Double calcAverageMenAge(Collection<People> peoples) {
         return peoples.stream()
                     .filter(people -> people.getSex().equals(Sex.MAN))
-                    .mapToInt(p -> p.getAge())
+                    .mapToInt(People::getAge)
                     .average().getAsDouble();
     }
 
